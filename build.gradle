@@ -1,0 +1,167 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.plagiarism'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+javafx {
+    version = "21.0.1"  // ВЕРСИЯ 21 для Java 21
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+dependencies {
+    // Java парсер
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.25.4'
+
+    // Логирование
+    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+
+    // Тесты
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+    // JUnit для тестов
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    // Для временных директорий
+    test
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+
+    // Показывать прогресс
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\n=== РЕЗУЛЬТАТЫ ТЕСТОВ ==="
+            println "Всего тестов: ${result.testCount}"
+            println "Пройдено: ${result.successfulTestCount}"
+            println "Провалено: ${result.failedTestCount}"
+            println "Пропущено: ${result.skippedTestCount}"
+            println "========================"
+        }
+    }
+}
+
+application {
+    mainClass = 'com.plagiarism.checker.MainApp'
+    applicationDefaultJvmArgs = []
+}
+
+// Создаем fat jar со всеми зависимостями
+shadowJar {
+    archiveBaseName = 'plagiarism-checker'
+    archiveVersion = '1.0'
+    archiveClassifier = ''
+
+    manifest {
+        attributes(
+                'Main-Class': 'com.plagiarism.checker.MainApp',
+                'Main-Version': version,
+                'Created-By': 'Java 21 + JavaFX 21'
+        )
+    }
+
+    // Включаем все зависимости в JAR
+    configurations = [project.configurations.runtimeClasspath]
+
+    // Исключаем файлы которые могут конфликтовать
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/NOTICE.txt'
+
+    minimize()
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
+}
+
+// Обычный jar (не fat)
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.plagiarism.checker.Launcher'  // Изменил тут
+    }
+
+    // Включаем все зависимости в JAR
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    // Убираем дубликаты
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.test {
+    dependsOn 'cleanTest'
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = true
+    }
+
+    // Показывать прогресс
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\nTest result: ${result.resultType}"
+            println "Test summary: ${result.testCount} tests, " +
+                    "${result.successfulTestCount} passed, " +
+                    "${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped"
+        }
+    }
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.docEncoding = 'UTF-8'
+
+    // Для поддержки русских комментариев
+    options.addStringOption('Xdoclint:none', '-quiet')
+
+    // Дополнительные опции
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.author = true
+    options.version = true
+    options.use = true
+
+    // Установите локаль (важно для русских символов)
+    options.locale = 'en_US' // или 'ru_RU' если поддерживается
+
+    // Отключите строгую проверку HTML
+    options.addBooleanOption('html5', true)
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}

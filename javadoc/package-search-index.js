@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.plagiarism.checker"},{"l":"com.plagiarism.checker.core"},{"l":"com.plagiarism.checker.gui"},{"l":"com.plagiarism.checker.model"},{"l":"com.plagiarism.checker.utils"}];updateSearchResults();

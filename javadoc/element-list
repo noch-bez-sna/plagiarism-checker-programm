@@ -1,0 +1,5 @@
+com.plagiarism.checker
+com.plagiarism.checker.core
+com.plagiarism.checker.gui
+com.plagiarism.checker.model
+com.plagiarism.checker.utils

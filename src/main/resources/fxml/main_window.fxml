@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/16"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.plagiarism.checker.gui.MainController"
+            prefHeight="600" prefWidth="800">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <Label text="Проверка плагиата Java-кода"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Separator/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane>
+            <Tab text="Проверка файла">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10">
+                        <Label text="Файл для проверки:"/>
+                        <TextField fx:id="filePathField" prefWidth="400"/>
+                        <Button text="Обзор..." onAction="#handleBrowseFile"/>
+                        <Button text="Анализировать" onAction="#handleAnalyzeFile"
+                                style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                    </HBox>
+
+                    <HBox spacing="10">
+                        <Label text="Или введите код:"/>
+                        <Button text="Проверить код" onAction="#handleAnalyzeCode"
+                                style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                    </HBox>
+
+                    <TextArea fx:id="codeTextArea"
+                              promptText="Вставьте Java код здесь..."
+                              wrapText="true"
+                              prefHeight="200"/>
+
+                    <Label text="Результаты:" style="-fx-font-weight: bold;"/>
+                    <TableView fx:id="resultsTable" prefHeight="200">
+                        <columns>
+                            <TableColumn text="Файл" prefWidth="300"/>
+                            <TableColumn text="Сходство %" prefWidth="100"/>
+                            <TableColumn text="Совпадений" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+
+                    <TextArea fx:id="detailsTextArea"
+                              promptText="Детали совпадений появятся здесь..."
+                              wrapText="true"
+                              prefHeight="150"/>
+                </VBox>
+            </Tab>
+
+            <Tab text="База данных">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10">
+                        <Label text="Папка с базой кода:"/>
+                        <TextField fx:id="dbPathField" prefWidth="400"/>
+                        <Button text="Выбрать папку..." onAction="#handleBrowseDatabase"/>
+                        <Button text="Загрузить базу" onAction="#handleLoadDatabase"
+                                style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
+                    </HBox>
+                    <Label fx:id="dbStatusLabel" text="База не загружена"/>
+                    <ListView fx:id="dbFilesListView" prefHeight="300"/>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" style="-fx-padding: 10;">
+            <Label fx:id="statusLabel" text="Готов"/>
+            <ProgressBar fx:id="progressBar" prefWidth="200" progress="0"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
